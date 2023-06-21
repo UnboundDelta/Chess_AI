@@ -1,0 +1,103 @@
+# import chess
+import pygame
+from game1 import Game1
+
+class Main:
+    
+    def __init__(self):
+        # Initialize Pygame
+        pygame.init()
+        pygame.mixer.init()
+        
+        # Create a window
+        self.screen = pygame.display.set_mode((600, 600))
+        
+        # Set the title
+        pygame.display.set_caption('Chess')
+        
+        # Using the game class
+        self.game = Game1()
+        
+    def mainloop(self):
+        screen = self.screen
+        game = self.game
+
+        print('--'*30)
+        print()
+        print("Hey there! This is a game of chess")
+        print()
+        print("1. Type 'quit' for quitting the game \
+            2. Type 'reset' for resetting the board \
+                3. Type 'undo' for making a move back")
+        checkmate = 0
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    pygame.mixer.quit()
+                    quit()
+            
+            game.draw_board(screen)
+            game.draw_pieces(screen)
+            pygame.display.update()
+            # print(game.board.legal_moves)
+            moveList = list(game.board.legal_moves)
+            print()
+            if len(moveList) == 0 and checkmate == 0:
+                if game.board.result() == '1-0':
+                    print("Congrats!! White Checkmated the black's king")
+                elif game.board.result() == '0-1':
+                    print("Congrats!! Black Checkmated the white's king")
+                else:
+                    print("Here's the Stalemate..Well Played")
+                checkmate = 1
+                print('--'*30)
+            else:
+                if checkmate == 1:
+                    print("Now you can either undo the move, reset the board or quit the game...")
+                else:
+                    print("Here's the list of the legal moves you can play :", game.board.legal_moves)
+                print()
+                move = input("Type the move: ")
+
+                if move == 'quit' or move == 'Quit':
+                    checkmate = 0
+                    pygame.quit()
+                    pygame.mixer.quit()
+                    quit()
+
+                elif move == 'reset' or move == 'Reset':
+                    try:
+                        checkmate = 0
+                        game.board.reset()
+                        game.update_my_board()
+                    except:
+                        pass
+
+                elif move == 'undo' or move == 'Undo':
+                    try:
+                        checkmate = 0
+                        game.board.pop()
+                        game.update_my_board()
+                        game.vague_Squares = game.sum
+                    except:
+                        pass
+                else:
+                    try:
+                        game.board.push_san(move)
+                        game.update_my_board()
+                        # Make sounds
+                        if game.is_captured():
+                            game.play_sound(True)
+                        else:
+                            game.play_sound()
+                    except:
+                        print()
+                        print("That's not a legal move")
+                
+            pygame.display.update()
+
+                
+            
+main = Main()
+main.mainloop()
